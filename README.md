@@ -42,3 +42,8 @@
 
 </div>
 
+# 3주차 standard
+![thunder 결과](https://user-images.githubusercontent.com/113877384/227104385-2c3e2bcc-b09b-41de-8003-85411fe56b6e.png)
+
+# 3주차 challenge
+![thunder 결과](https://user-images.githubusercontent.com/113877384/227104349-2496f280-dadd-402a-98b3-98f15a451017.png)
