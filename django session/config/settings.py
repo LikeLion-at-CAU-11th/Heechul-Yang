@@ -14,15 +14,12 @@ from pathlib import Path
 import os
 import json
 from django.core.exceptions import *
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 secret_file = os.path.join(BASE_DIR, 'secrets.json') # secrets.json 파일 위치를 명시
 
 with open(secret_file) as f:
@@ -55,14 +52,19 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
-    'posts'
-]
-
-THIRD_PARTY_APPS = [
+    'posts',
+    'introduction',
+    'accounts',
     
 ]
 
+THIRD_PARTY_APPS = [
+
+]
+
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
+
+AUTH_USER_MODEL = 'accounts.Member' # 'app이름.클래스 명'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -146,3 +148,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
