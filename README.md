@@ -25,16 +25,7 @@
 
 </div>
 
-***
-
-<div align="center">
-
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=yangchef1&layout=compact"><br><br>
-<img src="https://github-readme-stats.vercel.app/api?username=yangchef1&show_icons=true">
-
-</div>
-
-***
+# BOJ
 
 <div align="center">
 
