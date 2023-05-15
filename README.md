@@ -33,8 +33,5 @@
 
 </div>
 
-# 3주차 standard
-![thunder 결과](https://user-images.githubusercontent.com/113877384/227104385-2c3e2bcc-b09b-41de-8003-85411fe56b6e.png)
-
-# 3주차 challenge
-![thunder 결과](https://user-images.githubusercontent.com/113877384/227104349-2496f280-dadd-402a-98b3-98f15a451017.png)
+# 방명록 ERD
+![방명록 ERD](https://github.com/LikeLion-at-CAU-11th/Heechul-Yang/assets/113877384/d29c4bef-b26a-4687-855d-2b28ea7ded5f)
