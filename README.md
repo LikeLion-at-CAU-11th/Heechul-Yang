@@ -32,6 +32,3 @@
 [![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj=wnddkd1489)](https://solved.ac/wnddkd1489/)
 
 </div>
-
-# 방명록 ERD
-![방명록 ERD](https://github.com/LikeLion-at-CAU-11th/Heechul-Yang/assets/113877384/d29c4bef-b26a-4687-855d-2b28ea7ded5f)
