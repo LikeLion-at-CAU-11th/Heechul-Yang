@@ -32,3 +32,7 @@
 [![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj=wnddkd1489)](https://solved.ac/wnddkd1489/)
 
 </div>
+
+# 8주차 세션 스탠다드 과제
+![8주차 세션 과제 스탠다드 (1)](https://github.com/LikeLion-at-CAU-11th/Heechul-Yang/assets/113877384/721d5d78-46d6-4171-9711-69026c1864a4)
+![8주차 세션 과제 스탠다드 (2)](https://github.com/LikeLion-at-CAU-11th/Heechul-Yang/assets/113877384/c60eec4c-ae2d-4e24-b461-80d60786b107)
