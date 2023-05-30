@@ -14,7 +14,71 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 
-# Create your views here.
+from rest_framework import mixins
+from rest_framework import generics
+
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
+
+# post
+
+# 1. Mixins
+# queryset을 리스트로 만들어 주거나 저장 혹은 수정 후 Save해주는 과정 등 기본적인 CRUD가 구현되어 있음
+
+class PostListMixins(mixins.ListModelMixin, mixins.CreateModelMixin,generics.GenericAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    
+    def get(self, request, *args, **kwargs): # *args(dict 제외) **kargs(dict 형태만) 는 어떤 형태의 인자든 모두 받겠다는 뜻
+        return self.list(request)
+    
+    def post(self, request, *args, **kwargs): 
+        return self.create(request, *args, **kwargs)
+    
+class PostDetailMixins(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    
+    def get(self, request, *args, **kwargs): 
+        return self.retrieve(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+# 2. Concrete Generic Views
+# Mixins 보다 상속 클래스가 적어짐
+
+class PostListGenericAPIView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    
+class PostDetailGenericAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    
+# 3. ViewSet
+# 공통적으로 반복되는 queryset과 serializer를 한 번만 사용해도 됨
+
+class PostViewSet(ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    
+# post_list = PostViewSet.as_view({
+#     'get' : 'list',
+#     'post' : 'create',
+# })
+
+# post_detail = PostViewSet.as_view({
+#     'get' : 'retrieve',
+#     'put' : 'update',
+#     'patch' : 'partial_update',
+#     'delete' : 'destroy',
+# })
+# 라우팅을 위한 코드
+    
+# APIView
 
 class PostList(APIView):
     def post(self, request, format=None):
@@ -49,6 +113,65 @@ class PostDetail(APIView):
         post = get_object_or_404(Post, id = id)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+# ** Comment **
+
+# Mixins
+
+class CommentListMixins(mixins.ListModelMixin, mixins.CreateModelMixin,generics.GenericAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    
+class CommentDetailMixins(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+    
+# 2. Concrete Generic Views
+
+class CommentListGenericAPIView(generics.ListAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+class CommentDetailGenericAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+# 3. ViewSet
+
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+  
+# 라우팅  
+
+# comment_list = CommentViewSet.as_view({
+#     'get' : 'list',
+#     'post' : 'create',
+# })
+
+# comment_detail = CommentViewSet.as_view({
+#     'get' : 'retrieve',
+#     'put' : 'update',
+#     'patch' : 'partial_update',
+#     'delete' : 'destroy',
+# })
+
+# APIView
 
 class CommentInPost(APIView):
     
@@ -118,3 +241,4 @@ def get_recent_post(request):
         'message' : '최근 포스트 조회 성공',
         "data" : recent_post_list
     })
+    
