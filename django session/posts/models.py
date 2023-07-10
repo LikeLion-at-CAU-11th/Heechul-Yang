@@ -1,4 +1,6 @@
 from django.db import models
+from accounts.models import Member
+from django.conf import settings
 
 # Create your models here.
 class BaseModel(models.Model):
@@ -18,7 +20,7 @@ class Post(BaseModel):
     # text입력이 아닌 선택형 입력으로 만듬
 
     id = models.AutoField(primary_key=True)
-    writer = models.CharField(verbose_name="작성자", max_length=30)
+    writer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField(verbose_name="내용")
     category = models.CharField(choices=CHOICES, max_length=20)
     # CharField 에는 max_length 속성 필수!!
