@@ -5,8 +5,9 @@ from django.views.decorators.http import require_http_methods
 from django.core import serializers
 import json
 from .models import Post, Comment
+from accounts.models import Member
 import datetime as dt
-from .serializers import PostSerializer, CommentSerializer
+from .serializers import PostSerializer, CommentSerializer, ResisterSerializer, AuthSerializer
 
 #APIView
 from rest_framework.views import APIView
@@ -14,73 +15,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 
-from rest_framework import mixins
-from rest_framework import generics
+# JWT
+from rest_framework_simplejwt.serializers import RefreshToken
+    
+# 인가
+from rest_framework import permissions
+from config.permissions import IsWriterOrReadOnly
 
-from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-
-# post
-
-# 1. Mixins
-# queryset을 리스트로 만들어 주거나 저장 혹은 수정 후 Save해주는 과정 등 기본적인 CRUD가 구현되어 있음
-
-class PostListMixins(mixins.ListModelMixin, mixins.CreateModelMixin,generics.GenericAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    
-    def get(self, request, *args, **kwargs): # *args(dict 제외) **kargs(dict 형태만) 는 어떤 형태의 인자든 모두 받겠다는 뜻
-        return self.list(request)
-    
-    def post(self, request, *args, **kwargs): 
-        return self.create(request, *args, **kwargs)
-    
-class PostDetailMixins(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    
-    def get(self, request, *args, **kwargs): 
-        return self.retrieve(request, *args, **kwargs)
-    
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-    
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-# 2. Concrete Generic Views
-# Mixins 보다 상속 클래스가 적어짐
-
-class PostListGenericAPIView(generics.ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    
-class PostDetailGenericAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    
-# 3. ViewSet
-# 공통적으로 반복되는 queryset과 serializer를 한 번만 사용해도 됨
-
-class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    
-# post_list = PostViewSet.as_view({
-#     'get' : 'list',
-#     'post' : 'create',
-# })
-
-# post_detail = PostViewSet.as_view({
-#     'get' : 'retrieve',
-#     'put' : 'update',
-#     'patch' : 'partial_update',
-#     'delete' : 'destroy',
-# })
-# 라우팅을 위한 코드
-    
-# APIView
+# APIView (post)
 
 class PostList(APIView):
+    
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data) # 클라이언트가 보낸 값을 직렬화 (JSON으로) 해서 저장
         if serializer.is_valid(): # 유효성 검토
@@ -95,13 +42,21 @@ class PostList(APIView):
         return Response(serializer.data)
 
 class PostDetail(APIView):
+    
+    permission_classes = [IsWriterOrReadOnly]    
+    
+    def get_object(self, id):
+        post = Post.objects.get(id=id)
+        self.check_object_permissions(self.request, post)
+        return post
+    
     def get(self, request, id):
-        post = get_object_or_404(Post, id = id)
+        post = self.get_object(id = id)
         serializers = PostSerializer(post)
         return Response(serializers.data)
     
     def put(self, request, id):
-        post = get_object_or_404(Post, id = id)
+        post = self.get_object(id = id)
         serializers = PostSerializer(post, data=request.data) # 전달받은 값으로 수정하여 직렬화
         if serializers.is_valid(): # 유효성 검토
             serializers.save()
@@ -110,68 +65,11 @@ class PostDetail(APIView):
             return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, id):
-        post = get_object_or_404(Post, id = id)
+        post = self.get_object(id = id)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# ** Comment **
-
-# Mixins
-
-class CommentListMixins(mixins.ListModelMixin, mixins.CreateModelMixin,generics.GenericAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    
-    def get(self, request, *args, **kwargs):
-        return self.list(request)
-    
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-    
-class CommentDetailMixins(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-    
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-    
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-    
-# 2. Concrete Generic Views
-
-class CommentListGenericAPIView(generics.ListAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    
-class CommentDetailGenericAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    
-# 3. ViewSet
-
-class CommentViewSet(ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-  
-# 라우팅  
-
-# comment_list = CommentViewSet.as_view({
-#     'get' : 'list',
-#     'post' : 'create',
-# })
-
-# comment_detail = CommentViewSet.as_view({
-#     'get' : 'retrieve',
-#     'put' : 'update',
-#     'patch' : 'partial_update',
-#     'delete' : 'destroy',
-# })
-
-# APIView
+# APIView (comment)
 
 class CommentInPost(APIView):
     
@@ -242,3 +140,72 @@ def get_recent_post(request):
         "data" : recent_post_list
     })
     
+# 인증/인가
+
+class RegisterView(APIView):
+    serializer_class = ResisterSerializer
+    
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid(raise_exception=False):
+            member = serializer.save(request)
+            token = RefreshToken.for_user(member)
+            refresh_token = str(token)
+            access_token = str(token.access_token)
+            
+            res = Response(
+                {
+                    "member" : serializer.data,
+                    "message" : "register success",
+                    "token" : {
+                        "access_token" : access_token,
+                        "refresh_token" : refresh_token,
+                    },
+                },
+                status= status.HTTP_201_CREATED,
+            )
+            return res
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class AuthView(APIView):
+    serializer_class = AuthSerializer
+    
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid(raise_exception=False):
+            member = serializer.validated_data["member"]
+            access_token = serializer.validated_data["access_token"]
+            refresh_token = serializer.validated_data["refresh_token"]
+            
+            res = Response(
+                {
+                    "member" : {
+                        "id" : member.id,
+                        "email" : member.email,
+                        "age" : member.age,
+                    },
+                    "message" : "login success",
+                    "token" : {
+                        "access_token" : access_token,
+                        "refresh_token" : refresh_token,
+                    },
+                },
+                status = status.HTTP_200_OK
+            )
+            res.set_cookie("access-token", access_token, httponly=True)
+            res.set_cookie("refresh-token", refresh_token, httponly=True)
+            return res
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request):
+        res = Response({
+            "message" : "logout success"
+        }, status=status.HTTP_202_ACCEPTED)
+        
+        res.delete_cookie("access-token")
+        res.delete_cookie("refresh-token")
+        return res
