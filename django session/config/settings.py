@@ -66,18 +66,8 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
-    
-    # 소셜로그인 라이브러리
-    'rest_framework.authtoken',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    # allauth.socialaccount.providers.{소셜로그인제공업체}
-    # {소셜로그인제공업체} 부분에는 구글 외에도 카카오,네이버 추가 가능
-    'allauth.socialaccount.providers.google',
+    "storages",   
+  
 ] 
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -130,6 +120,23 @@ SIMPLE_JWT = {
 }
 
 ROOT_URLCONF = 'config.urls'
+
+# AWS 권한 설정
+AWS_ACCESS_KEY_ID = get_secret('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = get_secret('AWS_SECRET_ACCESS_KEY')
+AWS_REGION = 'ap-northeast-2'
+
+# AWS S3 버킷 이름
+AWS_STORAGE_BUCKET_NAME = 'yanglikelion11th'
+
+# AWS S3 버킷의 URL
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 TEMPLATES = [
     {

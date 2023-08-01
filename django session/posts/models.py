@@ -20,9 +20,10 @@ class Post(BaseModel):
     # text입력이 아닌 선택형 입력으로 만듬
 
     id = models.AutoField(primary_key=True)
-    writer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    writer = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="작성자",  on_delete=models.CASCADE)
     content = models.TextField(verbose_name="내용")
     category = models.CharField(choices=CHOICES, max_length=20)
+    thumbnail = models.ImageField(verbose_name="썸네일", upload_to=None, height_field=None, width_field=None, max_length=None,default= 'default_thumbnail.jpg')
     # CharField 에는 max_length 속성 필수!!
 
 class Comment(BaseModel):
